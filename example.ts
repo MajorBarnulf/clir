@@ -1,4 +1,4 @@
-import { Cli } from "./mod.ts"
+import { Cli } from "https://deno.land/x/clir/mod.ts"
 
 const cli = new Cli({
     name: "example", // name your CLI for the help page

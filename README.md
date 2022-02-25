@@ -9,7 +9,7 @@ Clir is a little library to quickly annd efficiently define and parse arguments 
 ## example
 
 ```ts
-import { Cli } from "./mod.ts"
+import { Cli } from "https://deno.land/x/clir/mod.ts"
 
 const cli = new Cli({
     name: "example", // name your CLI for the help page
@@ -40,4 +40,9 @@ if (cli.has_flag("verbose"))
 // or read values given by the user that way
 const value = cli.parameter_value("input");
 console.log(`found value: ${value}`)
+```
+
+try it with:
+```powershell
+deno run -A "https://deno.land/x/clir/example.ts" e
 ```
