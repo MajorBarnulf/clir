@@ -2,7 +2,8 @@ import { flagDescriptor, FlagState, CliFlags } from "./flag.ts"
 import { parameterDescriptor, ParameterState, CliParameters } from "./parameter.ts"
 
 export type CliDescriptor = {
-    name: string,
+    name?: string,
+    version?: string,
     description?: string,
     flags?: Record<string, flagDescriptor>,
     parameters?: Record<string, parameterDescriptor>,
@@ -13,7 +14,8 @@ export type CliDescriptor = {
  * An instance takes a descriptor to produce and provides type-sensitive methods to read parsed arguments.
  */
 export class Cli<D extends CliDescriptor> {
-    name: string;
+    name?: string;
+    version?: string;
     descriptor: D;
     flags: FlagState<D, CliFlags<D>, keyof CliFlags<D>>[];
     necessary_parameters: ParameterState<D, CliParameters<D>, keyof CliParameters<D>>[];
@@ -21,6 +23,7 @@ export class Cli<D extends CliDescriptor> {
 
     constructor(descriptor: D) {
         this.name = descriptor.name;
+        this.version = descriptor.version;
         this.descriptor = descriptor;
         this.flags = [];
         this.necessary_parameters = [];
@@ -163,14 +166,18 @@ export class Cli<D extends CliDescriptor> {
             return result;
         })
 
+        let header = "";
+        if (this.name != undefined)
+            if (this.version != undefined) header = `${this.name} (${this.version}):\n`;
+            else header = `${this.name}:\n`;
+
         let usage = this.name;
         if (flag_descriptions.length > 0) usage += " [FLAGS]";
         if (parameter_descriptions.length > 0) usage += " [PARAMETERS]";
         if (option_descriptions.length > 0) usage += " [OPTIONS]";
 
         console.log(`
-${this.name}:
-    ${this.descriptor.description ?? ""}
+${header}${this.descriptor.description ?? ""}
 
 USAGE:
     ${usage}
