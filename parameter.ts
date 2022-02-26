@@ -9,7 +9,7 @@ export type parameterDescriptor = {
     description?: string,
     type?: valueType,
     optional: true,
-    default: string
+    default?: string
 }
 
 
