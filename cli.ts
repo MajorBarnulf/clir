@@ -230,11 +230,12 @@ function is_short(arg: string): boolean {
 }
 
 function split_flag(arg: string): { name: string, value?: string } {
-    const parts = arg.substring(2).split("=");
+    const parts = arg.substring(2).split('=');
     const remainder = parts.filter((_, i) => i != 0);
+    const value = remainder.length > 0 ? remainder.join('=') : undefined;
     return {
         name: parts[0],
-        value: remainder.join('=')
+        value: value
     };
 }
 
