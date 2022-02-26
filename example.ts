@@ -1,22 +1,23 @@
 import { Cli } from "https://deno.land/x/clir/mod.ts"
 
+// Takes a descriptor that is also used for type checking of parameter names.
 const cli = new Cli({
-    name: "example", // name your CLI for the help page
+    name: "example",
     description: "Example usage of the clir library.",
 
-    flags: {         // add flags as a hash table
-        "lorem": {}, // every settings on a flag is optionnal
+    flags: {         // Add flags as a hash map.
+        "lorem": {}, // Every settings on a flag is optionnal.
         "verbose": {
-            description: "level of verbosity", // descriptions for the help pages
-            short: 'v'                         // add short flags for '-v' syntax
+            description: "level of verbosity", // Descriptions are used in the procedural help page.
+            short: 'v'                         // Short flags allow the '-v' syntax.
         },
     },
-    parameters: { // add parameters
+    parameters: { // Add parameters.
         "input": {
-            optional: false, // required parameters will throw errors if not provided
+            optional: false, // Required parameters will throw errors if not provided.
         },
         "output": {
-            optional: true,  // optional paramters should be assigned with the '--param=value', but remaining arguments will be assigned if not
+            optional: true,  // Optional parameters can be assigned with the '--param=value', remaining arguments will be assigned to them.
             default: "out.md"
         }
     }
@@ -24,8 +25,8 @@ const cli = new Cli({
 
 // you can test for the presence of flags this way
 if (cli.has_flag("verbose"))
-    console.log("found is verbose");
+    console.log("found verbose flag");
 
 // or read values given by the user that way
 const value = cli.parameter_value("input");
-console.log(`found value: ${value}`)
+console.log(`for parameter 'input' found: ${value}`)
