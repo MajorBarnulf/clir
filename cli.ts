@@ -1,11 +1,32 @@
 import { flagDescriptor, FlagState, CliFlags } from "./flag.ts"
 import { parameterDescriptor, ParameterState, CliParameters } from "./parameter.ts"
 
+/**
+ * A structure describing the properties and types the CLI should have or check for.
+ */
 export type CliDescriptor = {
+    /**
+     * The name to give to the CLI.
+     * Will appear in the procedural help page. 
+     */
     name?: string,
+    /**
+     * The version of the CLI.
+     * Will appear in the procedural help page.
+     */
     version?: string,
+    /**
+     * A description of the CLI.
+     * Will appear in the procedural help page.
+     */
     description?: string,
+    /**
+     * Hash map of the flags (boolean values) the CLI can receive.
+     */
     flags?: Record<string, flagDescriptor>,
+    /**
+     * Hash map of the parameters (string values) the CLI can receive.
+     */
     parameters?: Record<string, parameterDescriptor>,
 }
 
@@ -99,7 +120,6 @@ export class Cli<D extends CliDescriptor> {
     }
 
     collector: null | ParameterState<D, CliParameters<D>, keyof CliParameters<D>> = null;
-    param_parsing_cursor = 0;
     private parse_value(arg: string) {
         if (this.is_collecting()) {
             this.collector!.push_value(arg);
@@ -113,12 +133,12 @@ export class Cli<D extends CliDescriptor> {
         }
     }
 
-    private remaining_parameters(include_optional = false): ParameterState<D>[] {
+    private remaining_parameters(include_optional: boolean): ParameterState<D>[] {
         const result = [];
-        const necessary_parameters = this.necessary_parameters.filter(p => !p.is_assigned());
+        const necessary_parameters = this.necessary_parameters.filter(p => (!p.is_assigned()));
         result.push(...necessary_parameters);
-        if (!include_optional) {
-            const optional_parameters = this.optional_parameters.filter(o => !o.is_assigned());
+        if (include_optional) {
+            const optional_parameters = this.optional_parameters.filter(o => (!o.is_assigned()));
             result.push(...optional_parameters);
         }
         return result;
@@ -134,7 +154,7 @@ export class Cli<D extends CliDescriptor> {
     }
 
     private finalize_parsing() {
-        if (this.remaining_parameters().length > 0)
+        if (this.remaining_parameters(false).length > 0)
             throw "Not enough parameters provided.\nTry the '--help' flag.";
     }
 
@@ -148,6 +168,10 @@ export class Cli<D extends CliDescriptor> {
         Deno.exit();
     }
 
+    /**
+     * Prints the auto-generated help message but does not exit.
+     * You may have to exit manually.
+     */
     print_help() {
 
         const flag_descriptions = this.flags.map(flag => {
@@ -202,20 +226,30 @@ ${option_descriptions.join('\n\n')}
         );
     }
 
+    /**
+     * Check if a flag has been specified by the user in the command that started this process.
+     * @param name Name of the flag, checked from the hash table in the flag field of the descriptor.
+     * @returns Wether the flag was provided or not.
+     */
     has_flag(name: keyof CliFlags<D>): boolean {
         const flag = this.flags.find(f => f.name == name)!;
         return flag.found;
     }
 
-    parameter_value(name: keyof CliParameters<D>): string {
+    /**
+     * 
+     * @param name Name of the parameter to get the value of.
+     * @returns If it was provided, the value the user entered; Else will return the default value defined in the descriptor or undefined.
+     */
+    parameter_value(name: keyof CliParameters<D>): string | undefined {
         const matching_necessary_param = this.necessary_parameters.find(p => p.name == name);
         if (matching_necessary_param != undefined) {
-            return matching_necessary_param.value!;
+            return matching_necessary_param.value;
         }
 
         const matching_optional_param = this.optional_parameters.find(p => p.name == name);
         if (matching_optional_param != undefined) {
-            return matching_optional_param.value ?? matching_optional_param.value!;
+            return matching_optional_param.value ?? matching_optional_param.value;
         }
 
         throw `TODO: find better error descriptions`;
