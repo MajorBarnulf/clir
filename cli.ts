@@ -93,7 +93,7 @@ export class Cli<D extends CliDescriptor> {
             if (flag != undefined) {
                 flag.set_found();
             } else {
-                throw `Unknown flag: '${letter}'.\nTry with the '--help' flag.`;
+                throw `Unknown flag: '${letter}'.\nTry the '--help' flag.`;
             }
         }
     }
@@ -135,9 +135,7 @@ export class Cli<D extends CliDescriptor> {
 
     private finalize_parsing() {
         if (this.remaining_parameters().length > 0)
-        if (this.param_parsing_cursor < this.necessary_parameters.length) {
-                throw "Not enough parameters provided.\nTry the '--help' flag.";
-        }
+            throw "Not enough parameters provided.\nTry the '--help' flag.";
     }
 
     private try_help() {
