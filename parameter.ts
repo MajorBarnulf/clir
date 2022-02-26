@@ -16,7 +16,7 @@ export type parameterDescriptor = {
 export type CliParameters<D extends CliDescriptor> = D["parameters"] extends Record<string, parameterDescriptor> ? D["parameters"] : Record<string, parameterDescriptor>;
 
 
-export class ParameterState<D extends CliDescriptor, P extends CliParameters<D>, K extends keyof P> {
+export class ParameterState<D extends CliDescriptor, P extends CliParameters<D> = CliParameters<D>, K extends keyof P = keyof P> {
     name: K;
     description: string;
     type: valueType;
@@ -41,5 +41,9 @@ export class ParameterState<D extends CliDescriptor, P extends CliParameters<D>,
             if (float != integer) throw `invalid parameter type, ${this.name} should be an integer`;
         }
         this.value = value;
+    }
+
+    is_assigned(): boolean {
+        return this.value != undefined;
     }
 }

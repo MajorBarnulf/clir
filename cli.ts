@@ -113,12 +113,20 @@ export class Cli<D extends CliDescriptor> {
         }
     }
 
-    private next_param(): undefined | ParameterState<D, CliParameters<D>, keyof CliParameters<D>> {
-        const index = (this.param_parsing_cursor)++;
-        let param: undefined | ParameterState<D, CliParameters<D>, keyof CliParameters<D>>;
-        if (index < this.necessary_parameters.length) param = this.necessary_parameters[index];
-        else param = this.optional_parameters[index];
-        return param;
+    private remaining_parameters(include_optional = false): ParameterState<D>[] {
+        const result = [];
+        const necessary_parameters = this.necessary_parameters.filter(p => !p.is_assigned());
+        result.push(...necessary_parameters);
+        if (!include_optional) {
+            const optional_parameters = this.optional_parameters.filter(o => !o.is_assigned());
+            result.push(...optional_parameters);
+        }
+        return result;
+    }
+
+    private next_param(): undefined | ParameterState<D> {
+        const unassigned_parameters = this.remaining_parameters(true);
+        return unassigned_parameters[0];
     }
 
     private is_collecting(): boolean {
@@ -126,8 +134,9 @@ export class Cli<D extends CliDescriptor> {
     }
 
     private finalize_parsing() {
+        if (this.remaining_parameters().length > 0)
         if (this.param_parsing_cursor < this.necessary_parameters.length) {
-            throw "Not enough parameters provided.\nTry with the '--help' flag.";
+                throw "Not enough parameters provided.\nTry the '--help' flag.";
         }
     }
 
